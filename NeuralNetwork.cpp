@@ -11,6 +11,30 @@ void runPerceptron(Perceptron* p){
         }
     }
 }
+/*
+    The trainNetwork function trains a network provided to it 
+    mlp repersents the network to be trained
+    epochs repersents the number of training epochs to be performed
+    x is a vector of the data set of the sample
+    y is a vector of the  labeled set of samples
+*/ 
+void trainNetwork(MultiLayerPerceptron* mlp,int epochs,
+ const std::vector<std::vector<double>>& x,
+ const std::vector<std::vector<double>>& y){
+    double MSE;
+    auto bp=std::bind(&MultiLayerPerceptron::bp,mlp);
+    for(int i=0;i<epochs;i++){
+        MSE=0.0;
+        MSE=std::transform_reduce(std::cbegin(x),std::cend(x),
+                    std::cbegin(y),
+                    0.0,
+                    std::plus<>(),bp);
+        MSE/=x.size();
+        if(i%100==0)
+            std::cout<<"MSE = "<<MSE<<"\n";
+    }
+}
+
 int main(){
     srand(time(NULL));
     rand();
@@ -37,7 +61,20 @@ int main(){
     mlp.set_weights({{{-11,-11,15},{20,20,-15},{10,10,-15}}}); //xor is combonation of  nand or and and gates
     std::cout<<"Hardcoded Weights:\n";
     mlp.print_weights();
-    std::cout<<"XOR:\n";
+    std::cout<<"XOR Gate:\n";
+    for(double i=0;i<2;i++){
+        for(double j=0;j<2;j++){
+            std::cout<<i<<" "<<j<<" = "<<mlp.run({i,j})[0]<<"\n";
+        }
+    }
+    //training code
+    std::cout<<"\n\n"<<"Trained XOR example"<<"\n\n";
+    mlp=MultiLayerPerceptron({2,2,1});
+    trainNetwork(&mlp,3000,{{0,0},{0,1},{1,0},{1,1}},{{0},{1},{1},{0}});
+    std::cout<<"Training neural network to work as xor gate\n";
+    std::cout<<"Trained Weights:\n";
+    mlp.print_weights();
+    std::cout<<" Trained XOR Gate:\n";
     for(double i=0;i<2;i++){
         for(double j=0;j<2;j++){
             std::cout<<i<<" "<<j<<" = "<<mlp.run({i,j})[0]<<"\n";

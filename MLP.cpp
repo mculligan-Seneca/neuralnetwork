@@ -80,3 +80,115 @@
         }
         return values_.back();
     }
+
+    double MultiLayerPerceptron::bp(std::vector<double> x, std::vector<double> y){
+        double MSE;
+        /*
+        Feed sample to network 
+
+        Calculate the mean squared error. 
+
+        Calculate the error term of each output neuron 
+
+        Iteratively calculate the error terms in the hidden layers 
+
+        Apply the delta rule 
+
+        Adjust the weights
+        */
+       //Feed sample to network 
+       x=this->run(x);
+
+       //Calculate the mean squared error. 
+       MSE=std::transform_reduce(std::cbegin(x),std::cend(x),
+                                std::cbegin(y),
+                                0.0,
+                                std::plus<>(),
+                                [](double observed, double expected){
+                                    double err=observed-expected;
+                                    return err*err;
+                                });
+       MSE/=x.size();
+       return MSE;//returns mean squared error cause well need for training
+    }
+
+    /*
+    Back Propagation 
+    
+Here are the steps 
+
+
+
+ 
+
+ 
+
+ Calculate output error terms 
+
+Sk=ok*(1-ok)*(yk-ok) 
+
+ Intermediate error metric used for guessing how bad each neuron is doing 
+
+Were paying attention to the output layer.  
+
+Well use these error terms to calculate the error terms moving backward through the hidden layer. 
+
+Well know the error terms for all of the nodes in the network and well apply the delta rule to calculate the deltas and adjust the weights. 
+
+ 
+
+Sk is related to the partial derivative of the error terms in the network with respect to each weight in that neuron 
+
+Ok*(1-Ok) is the derivative of the sigmoid function 
+
+ 
+
+Calculate the hidden layer input terms 
+
+ 
+
+Sh=Oh(1-oh)*sigma(wkhSk,k contained within outs(kEouts)) 
+
+This iterates form the last layer to the first to find the error term per neuron. 
+
+In the hidden layer we have no idea about the error because we do not know what to expect from the previous layer. 
+
+So what we do is take the sum a product that uses the error connected to this neurons output. 
+
+We must multiply the weight of the input connected to the output 
+
+ 
+
+Lets do h=1 
+
+ 
+
+S1=o1*(1-o1)*sigma(wk1*Sk,kEouts) 
+
+Were multiplying the weight 1 by Sk  
+
+ 
+
+Were scaling the error terms with the weights 
+
+ 
+
+This means errors with higher weights will get more of the blame then weights that are lower. 
+
+When were talking about the index of the neuron 
+
+S12 is the third neuron in the first layer  
+K index of weights that’s outputed 
+
+H is layer 
+
+Apply the delta rule 
+
+d/dx(wij)=n*Si*xij  
+
+Si the error of the layer per neuron 
+
+Adjust the weights 
+
+Wij+=d/dx(wij) 
+    */
