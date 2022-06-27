@@ -37,11 +37,14 @@
         
         for(int i=0;i<layers_.size();i++){//create neurons layer by layer
             values_.push_back(std::vector<double>(layers_[i],0.0));
+            d_.assign(layers_.size(),std::vector<double>(layers_[i],0.0));
             network_.push_back(std::vector<Perceptron>());
             if(i>0)// ignore first layer cause we dont have neurons
-            for(int j=0;j<layers_[i];j++)
-                network_[i].push_back(Perceptron(layers_[i-1],bias_));// set up each perceptron in the network
+                for(int j=0;j<layers_[i];j++)
+                    network_[i].push_back(Perceptron(layers_[i-1],bias_));
+                    // set up each perceptron in the network
         }
+        std::cout<<"Ok\n";
     }
 
     void MultiLayerPerceptron::print_weights(){
@@ -56,16 +59,16 @@
             
 
         }
-
+        
     }
-    void MultiLayerPerceptron::set_weights(std::vector<std::vector<std::vector<double>>> w_init){
+    void MultiLayerPerceptron::set_weights(std::vector<std::vector<std::vector<double> > > w_init){
             //writes all weights into neural network
             //w_init is a vector of vector of vector of doubles that are the weights
-            for(int i=0;i<network_.size();i++){
-                for(int j=0;j<layers_[i];j++)
+            for(int i=0;i<w_init.size();i++){
+                for(int j=0;j<w_init[i].size();j++)
                     network_[i+1][j].set_weights(w_init[i][j]);//not specifiying input layer
             }
-
+             std::cout<<"Ok\n";
     }
 
     std::vector<double> MultiLayerPerceptron::run(std::vector<double> x){
@@ -82,7 +85,7 @@
     }
 
     double MultiLayerPerceptron::bp(std::vector<double> x, std::vector<double> y){
-        double MSE;
+        double MSE=0.0;
         /*
         Feed sample to network 
 
@@ -100,15 +103,49 @@
        x=this->run(x);
 
        //Calculate the mean squared error. 
-       MSE=std::transform_reduce(std::cbegin(x),std::cend(x),
-                                std::cbegin(y),
+       double err=0.0;
+       for(int i=0;i<x.size();i++){
+            err=x[i]-y[i];
+            MSE+=err*err;
+       }
+       /*MSE=std::transform_reduce(x.cbegin(),x.cend(),
+                                y.cbegin(),
                                 0.0,
-                                std::plus<>(),
+                                std::plus<double>(),
                                 [](double observed, double expected){
                                     double err=observed-expected;
                                     return err*err;
-                                });
-       MSE/=x.size();
+                                });*/
+       MSE/=layers_.size();//ignoring degrees of freedom
+
+       // Calculate the error term of each output neuron 
+       for(int i=0;i<x.size();i++){
+           d_.back()[i]=x[i]*(1-x[i])*(y[i]-x[i]);
+       }
+       //Iteratively calculate the error terms in the hidden layers 
+        for(int i=network_.size()-2;i>0;i--){
+            for(int j=0;j<network_[i].size();j++){
+                double fwd_err=0.0;
+                for(int k=0;k<layers_[i+i];k++)
+                    fwd_err+=network_[i+1][k].weights_[j]*d_[i+1][k];
+                d_[i][j]=values_[i][j]*(1-values_[i][j])*fwd_err;
+            }
+        }
+
+        //Delta rule plus adjust weights
+        for(int i=1;i<layers_.size();i++){
+            for(int j=0;j<layers_[i];j++){
+                for(int k=0;k<layers_[i-1]+1;k++){
+                    double delta;
+                    if(k==layers_[i-1])
+                        delta=eta_*d_[i][j]*bias_;
+                    else
+                        delta=eta_*d_[i][j]*values_[i-1][k];
+                    network_[i][j].weights_[k]+=delta;//maybe should be multiplying by i,j
+                }
+            }
+        }
+        
        return MSE;//returns mean squared error cause well need for training
     }
 

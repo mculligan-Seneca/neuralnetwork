@@ -22,13 +22,10 @@ void trainNetwork(MultiLayerPerceptron* mlp,int epochs,
  const std::vector<std::vector<double>>& x,
  const std::vector<std::vector<double>>& y){
     double MSE;
-    auto bp=std::bind(&MultiLayerPerceptron::bp,mlp);
     for(int i=0;i<epochs;i++){
         MSE=0.0;
-        MSE=std::transform_reduce(std::cbegin(x),std::cend(x),
-                    std::cbegin(y),
-                    0.0,
-                    std::plus<>(),bp);
+        for(int j=0;j<x.size();j++)
+            MSE+=mlp->bp(x[j],y[j]);
         MSE/=x.size();
         if(i%100==0)
             std::cout<<"MSE = "<<MSE<<"\n";
