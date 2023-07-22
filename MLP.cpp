@@ -44,7 +44,7 @@
                     network_[i].push_back(Perceptron(layers_[i-1],bias_));
                     // set up each perceptron in the network
         }
-        std::cout<<"Ok\n";
+        
     }
 
     void MultiLayerPerceptron::print_weights(){
