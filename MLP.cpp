@@ -68,7 +68,7 @@
                 for(int j=0;j<w_init[i].size();j++)
                     network_[i+1][j].set_weights(w_init[i][j]);//not specifiying input layer
             }
-             std::cout<<"Ok\n";
+             
     }
 
     std::vector<double> MultiLayerPerceptron::run(std::vector<double> x){
