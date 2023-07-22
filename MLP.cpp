@@ -126,7 +126,7 @@
         for(int i=network_.size()-2;i>0;i--){
             for(int j=0;j<network_[i].size();j++){
                 double fwd_err=0.0;
-                for(int k=0;k<layers_[i+i];k++)
+                for(int k=0;k<layers_[i+1];k++)
                     fwd_err+=network_[i+1][k].weights_[j]*d_[i+1][k];
                 d_[i][j]=values_[i][j]*(1-values_[i][j])*fwd_err;
             }

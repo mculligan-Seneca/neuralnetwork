@@ -74,6 +74,7 @@
         "*.tcc": "cpp",
         "memory_resource": "cpp",
         "stop_token": "cpp",
-        "__bits": "cpp"
+        "__bits": "cpp",
+        "variant": "cpp"
     }
 }
